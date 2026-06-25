@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ThetaPlay — EEG Music Recommender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #0f0f1a;
+            color: #f0f0f0;
+            text-align: center;
+        }
+        button {
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #5849c4;
+        }
+        #result {
+            margin-top: 30px;
+            text-align: left;
+        }
+        .emotion-tag {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00cec9;
+        }
+        .song {
+            background-color: #1c1c2e;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .song-title {
+            font-weight: bold;
+        }
+        .song-artist {
+            color: #b2b2b2;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎧 ThetaPlay</h1>
+    <p>EEG-Based Music Recommendation System</p>
+
+    <button onclick="getRecommendation()">Get Recommendation</button>
+
+    <div id="result"></div>
+
+    <script>
+        async function getRecommendation() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "<p>Analyzing brain signal...</p>";
+
+            // Sample EEG feature array (replace with real data source later)
+            const sampleFeatures = Array(355).fill(0).map(() => Math.random() * 2 - 1);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/recommend', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ features: sampleFeatures })
+                });
+
+                const data = await response.json();
+
+                let html = `<p class="emotion-tag">Detected Emotion: ${data.predicted_emotion}</p>`;
+                html += `<h3>Recommended Songs:</h3>`;
+
+                data.recommendations.forEach(song => {
+                    html += `
+                        <div class="song">
+                            <div class="song-title">${song.track_name}</div>
+                            <div class="song-artist">${song.track_artist}</div>
+                        </div>
+                    `;
+                });
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+
+</body>
+</html>
